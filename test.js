@@ -701,9 +701,17 @@ describe('pickAPath', () => {
 			pickAPath(' M whatever ./foo/bar', { validateFileExists: false })
 		).resolves.toBe('./foo/bar');
 	});
-	it('should return undefined if matcher has no matches', () => {
+	it('should return fallback value if matcher has no matches', () => {
 		return expect(
 			pickAPath('SO.MANY&&PERIODSTXT', { validateFileExists: false })
+		).resolves.toBe('SO.MANY&&PERIODSTXT');
+	});
+	it('should return undefined if matcher has no matches and resolveWithFallback=false', () => {
+		return expect(
+			pickAPath('SO.MANY&&PERIODSTXT', {
+				validateFileExists: false,
+				resolveWithFallback: false
+			})
 		).resolves.toBe(undefined);
 	});
 	it('should return simple matcher with file validation result', () => {
@@ -714,20 +722,20 @@ describe('pickAPath', () => {
 	it('should resolve with undefined if file can not be found', () => {
 		return expect(pickAPath(' M whatever ./foo/bar')).resolves.toBe(undefined);
 	});
-	it('should resolve to trimmed input value if allInput param is used', () => {
+	it('should resolve to trimmed input value if resolveWithInput param is used', () => {
 		return expect(
-			pickAPath(' M whatever ./__fixtures__/simplefile.js', { allInput: true })
+			pickAPath(' M whatever ./__fixtures__/simplefile.js', {
+				resolveWithInput: true
+			})
 		).resolves.toBe('M whatever ./__fixtures__/simplefile.js');
 	});
-	it('should resolve otherwise non-discoverable file names using allInput', () => {
-		return expect(pickAPath('LICENSE', { allInput: true })).resolves.toBe(
-			'LICENSE'
-		);
+	it('should resolve fallback file names', () => {
+		return expect(pickAPath('LICENSE')).resolves.toBe('LICENSE');
 	});
-	it('should resolve trimmed input value if using allInput and validateFileExists=false', () => {
+	it('should resolve trimmed input value if using resolveWithInput and validateFileExists=false', () => {
 		return expect(
 			pickAPath('   lorem ipsum dolor sit amet ... ', {
-				allInput: true,
+				resolveWithInput: true,
 				validateFileExists: false
 			})
 		).resolves.toBe('lorem ipsum dolor sit amet ...');

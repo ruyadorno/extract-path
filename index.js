@@ -91,17 +91,17 @@ const prependDir = file => {
 	});
 };
 
-const matcher = ({ line, validateFileExists, allInput }) =>
+const matcher = ({ line, validateFileExists, allInput, fallback = true }) =>
 	REGEX_WATERFALL.reduce((acc, config) => {
 		if (
-			(config.allInput && !allInput) ||
+			(config.allInput && !fallback) ||
 			(config.validateFileExists && !validateFileExists) ||
 			!config.regex.test(line)
 		)
 			return acc;
 
 		const add = match =>
-			config.allInput
+			config.allInput && allInput
 				? [getMatch(match)].concat(acc)
 				: acc.concat(getMatch(match));
 		const matches = config.regex.exec(line);
@@ -116,17 +116,35 @@ const matcher = ({ line, validateFileExists, allInput }) =>
 		return add(matches);
 	}, []).filter(a => a);
 
-function pickAPath(line, { validateFileExists = true, allInput = false } = {}) {
+function pickAPath(
+	line,
+	{
+		validateFileExists = true,
+		resolveWithInput = false,
+		resolveWithFallback = true
+	} = {}
+) {
 	if (typeof line !== 'string') {
 		return Promise.reject(new TypeError('ERR_INVALID_ARG_TYPE'));
 	}
 
 	if (!validateFileExists) {
-		return Promise.resolve(matcher({ line, allInput })[0]);
+		return Promise.resolve(
+			matcher({
+				line,
+				allInput: resolveWithInput,
+				fallback: resolveWithFallback
+			})[0]
+		);
 	}
 
 	return new Promise((resolve, reject) => {
-		const results = matcher({ line, validateFileExists, allInput });
+		const results = matcher({
+			line,
+			validateFileExists,
+			allInput: resolveWithInput,
+			fallback: resolveWithFallback
+		});
 		const testNextFile = i => {
 			const file = results[i];
 			if (!file) return resolve();
@@ -134,7 +152,7 @@ function pickAPath(line, { validateFileExists = true, allInput = false } = {}) {
 			prependDir(file)
 				.then(access)
 				.then(() => {
-					resolve(allInput ? results[0] : file);
+					resolve(resolveWithInput ? results[0] : file);
 				})
 				.catch(() => (file.substr(0, 4) === '.../' ? resolve(file) : true))
 				.then(hasNoResult => hasNoResult && testNextFile(i + 1))

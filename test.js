@@ -136,95 +136,119 @@ describe('matcher', () => {
 		[
 			{
 				input: { line: 'html/js/hotness.js' },
-				output: ['html/js/hotness.js', 'hotness.js']
+				output: ['html/js/hotness.js', 'hotness.js', 'html/js/hotness.js']
 			},
 			{
 				input: { line: '/absolute/path/to/something.txt' },
-				output: ['/absolute/path/to/something.txt', 'something.txt', '.txt']
+				output: [
+					'/absolute/path/to/something.txt',
+					'something.txt',
+					'.txt',
+					'/absolute/path/to/something.txt'
+				]
 			},
 			{
 				input: { line: '/html/js/hotness.js42' },
-				output: ['/html/js/hotness.js42', '/html/js/hotness.js4', '.js42']
+				output: [
+					'/html/js/hotness.js42',
+					'/html/js/hotness.js4',
+					'.js42',
+					'/html/js/hotness.js42'
+				]
 			},
 			{
 				input: { line: '/html/js/hotness.js' },
-				output: ['/html/js/hotness.js', 'hotness.js']
+				output: ['/html/js/hotness.js', 'hotness.js', '/html/js/hotness.js']
 			},
 			{
 				input: { line: './asd.txt:83' },
-				output: ['./asd.txt', './asd.txt', 'asd.txt', '.txt']
+				output: ['./asd.txt', './asd.txt', 'asd.txt', '.txt', './asd.txt:83']
 			},
 			{
 				input: { line: '.env.local' },
-				output: ['.env.local', '.local']
+				output: ['.env.local', '.local', '.env.local']
 			},
 			{
 				input: { line: '.gitignore' },
-				output: ['.gitignore']
+				output: ['.gitignore', '.gitignore']
 			},
 			{
 				input: { line: 'tmp/.gitignore' },
-				output: ['tmp/.gitignore']
+				output: ['tmp/.gitignore', 'tmp/.gitignore']
 			},
 			{
 				input: { line: '.ssh/.gitignore' },
-				output: ['.ssh/.gitignore']
+				output: ['.ssh/.gitignore', '.ssh/.gitignore']
 			},
 			{
 				input: { line: '.ssh/known_hosts' },
-				output: ['.ssh/known_hosts']
+				output: ['.ssh/known_hosts', '.ssh/known_hosts']
 			},
 			{
 				input: { line: '.a' },
-				output: []
+				output: ['.a']
 			},
 			{
 				input: { line: 'flib/asd/ent/berkeley/two.py-22' },
 				output: [
 					'flib/asd/ent/berkeley/two.py',
 					'flib/asd/ent/berkeley/two.py',
-					'.py-22'
+					'.py-22',
+					'flib/asd/ent/berkeley/two.py-22'
 				]
 			},
 			{
 				input: { line: 'flib/foo/bar' },
-				output: ['flib/foo/bar']
+				output: ['flib/foo/bar', 'flib/foo/bar']
 			},
 			{
 				input: { line: 'flib/foo/bar ' },
-				output: ['flib/foo/bar']
+				output: ['flib/foo/bar', 'flib/foo/bar']
 			},
 			{
 				input: { line: 'foo/b ' },
-				output: ['foo/b']
+				output: ['foo/b', 'foo/b']
 			},
 			{
 				input: { line: 'foo/bar/baz/' },
-				output: []
+				output: ['foo/bar/baz/']
 			},
 			{
 				input: { line: 'flib/ads/ads.thrift' },
-				output: ['flib/ads/ads.thrift', 'ads.thrift', '.thrift']
+				output: [
+					'flib/ads/ads.thrift',
+					'ads.thrift',
+					'.thrift',
+					'flib/ads/ads.thrift'
+				]
 			},
 			{
 				input: { line: 'banana hanana Wilde/ads/story.m' },
-				output: ['Wilde/ads/story.m', 'story.m']
+				output: [
+					'Wilde/ads/story.m',
+					'story.m',
+					'banana hanana Wilde/ads/story.m'
+				]
 			},
 			{
 				input: { line: 'flib/asd/asd.py two/three/four.py' },
-				output: ['flib/asd/asd.py', 'asd.py']
+				output: [
+					'flib/asd/asd.py',
+					'asd.py',
+					'flib/asd/asd.py two/three/four.py'
+				]
 			},
 			{
 				input: { line: 'asd/asd/asd/ 23' },
-				output: []
+				output: ['asd/asd/asd/ 23']
 			},
 			{
 				input: { line: 'foo/bar/TARGETS:23' },
-				output: ['foo/bar/TARGETS', 'foo/bar/TARGETS']
+				output: ['foo/bar/TARGETS', 'foo/bar/TARGETS', 'foo/bar/TARGETS:23']
 			},
 			{
 				input: { line: 'foo/bar/TARGETS-24' },
-				output: ['foo/bar/TARGETS', 'foo/bar/TARGETS-24']
+				output: ['foo/bar/TARGETS', 'foo/bar/TARGETS-24', 'foo/bar/TARGETS-24']
 			},
 			{
 				input: {
@@ -235,7 +259,8 @@ describe('matcher', () => {
 					'fbcode/search/places/scorer/PageScorer.cpp',
 					'fbcode/search/places/scorer/PageScorer.cpp',
 					'PageScorer.cpp',
-					'.cpp'
+					'.cpp',
+					'fbcode/search/places/scorer/PageScorer.cpp:27:46:#include "search/places/scorer/linear_scores/MinutiaeVerbScorer.h'
 				]
 			},
 			{
@@ -246,7 +271,8 @@ describe('matcher', () => {
 				output: [
 					'fbcode/search/places/scorer/TARGETS',
 					'fbcode/search/places/scorer/TARGETS',
-					'fbcode/search/places/scorer/TARGETS'
+					'fbcode/search/places/scorer/TARGETS',
+					'fbcode/search/places/scorer/TARGETS:590:28:    srcs = ["linear_scores/MinutiaeVerbScorer.cpp"]'
 				]
 			},
 			{
@@ -257,7 +283,8 @@ describe('matcher', () => {
 				output: [
 					'fbcode/search/places/scorer/TARGETS',
 					'fbcode/search/places/scorer/TARGETS',
-					'fbcode/search/places/scorer/TARGETS'
+					'fbcode/search/places/scorer/TARGETS',
+					'fbcode/search/places/scorer/TARGETS:1083:27:      "linear_scores/test/MinutiaeVerbScorerTest.cpp"'
 				]
 			},
 			{
@@ -265,7 +292,8 @@ describe('matcher', () => {
 				output: [
 					'~/foo/bar/something.py',
 					'/foo/bar/something.py',
-					'something.py'
+					'something.py',
+					'~/foo/bar/something.py'
 				]
 			},
 			{
@@ -274,12 +302,18 @@ describe('matcher', () => {
 					'~/foo/bar/inHomeDir.py',
 					'/foo/bar/inHomeDir.py',
 					'/foo/bar/inHomeDir.py',
-					'inHomeDir.py'
+					'inHomeDir.py',
+					'~/foo/bar/inHomeDir.py:22'
 				]
 			},
 			{
 				input: { line: 'blarge assets/retina/victory@2x.png' },
-				output: ['assets/retina/victory@2x.png', 'victory@2x.png', '.png']
+				output: [
+					'assets/retina/victory@2x.png',
+					'victory@2x.png',
+					'.png',
+					'blarge assets/retina/victory@2x.png'
+				]
 			},
 			{
 				input: { line: '~/assets/retina/victory@2x.png' },
@@ -287,35 +321,45 @@ describe('matcher', () => {
 					'~/assets/retina/victory@2x.png',
 					'/assets/retina/victory@2x.png',
 					'victory@2x.png',
-					'.png'
+					'.png',
+					'~/assets/retina/victory@2x.png'
 				]
 			},
 			{
 				input: { line: 'So.many.periods.txt' },
-				output: ['So.many.periods.txt', '.txt']
+				output: ['So.many.periods.txt', '.txt', 'So.many.periods.txt']
 			},
 			{
 				input: { line: 'SO.MANY.PERIODS.TXT' },
-				output: ['SO.MANY.PERIODS.TXT', '.TXT']
+				output: ['SO.MANY.PERIODS.TXT', '.TXT', 'SO.MANY.PERIODS.TXT']
 			},
 			{
 				input: { line: 'blarg blah So.MANY.PERIODS.TXT:22' },
-				output: ['So.MANY.PERIODS.TXT', '.TXT']
+				output: [
+					'So.MANY.PERIODS.TXT',
+					'.TXT',
+					'blarg blah So.MANY.PERIODS.TXT:22'
+				]
 			},
 			{
 				input: { line: 'SO.MANY&&PERIODSTXT' },
-				output: []
+				output: ['SO.MANY&&PERIODSTXT']
 			},
 			{
 				input: { line: 'test src/categories/NSDate+Category.h' },
-				output: ['src/categories/NSDate+Category.h', 'NSDate+Category.h']
+				output: [
+					'src/categories/NSDate+Category.h',
+					'NSDate+Category.h',
+					'test src/categories/NSDate+Category.h'
+				]
 			},
 			{
 				input: { line: '~/src/categories/NSDate+Category.h' },
 				output: [
 					'~/src/categories/NSDate+Category.h',
 					'/src/categories/NSDate+Category.h',
-					'NSDate+Category.h'
+					'NSDate+Category.h',
+					'~/src/categories/NSDate+Category.h'
 				]
 			},
 			{
@@ -328,7 +372,8 @@ describe('matcher', () => {
 					'./inputs/evilFile',
 					'Space.txt',
 					'evilFile With Space.txt',
-					'./inputs/evilFile'
+					'./inputs/evilFile',
+					'M    ./inputs/evilFile With Space.txt'
 				]
 			},
 			{
@@ -341,7 +386,8 @@ describe('matcher', () => {
 					'./inputs/evilFile',
 					'Space.txt',
 					'evilFile With Space.txt',
-					'./inputs/evilFile'
+					'./inputs/evilFile',
+					'./inputs/evilFile With Space.txt:22'
 				]
 			},
 			{
@@ -354,7 +400,8 @@ describe('matcher', () => {
 					'./inputs/annoying',
 					'Space2.txt',
 					'evilFile With Space2.txt',
-					'./inputs/annoying'
+					'./inputs/annoying',
+					'./inputs/annoying Spaces Folder/evilFile With Space2.txt'
 				]
 			},
 			{
@@ -367,7 +414,8 @@ describe('matcher', () => {
 					'./inputs/annoying',
 					'Space2.txt',
 					'evilFile With Space2.txt',
-					'./inputs/annoying'
+					'./inputs/annoying',
+					'./inputs/annoying Spaces Folder/evilFile With Space2.txt:42'
 				]
 			},
 			{
@@ -380,7 +428,8 @@ describe('matcher', () => {
 					'./inputs/annoying',
 					'Space2.txt',
 					'evilFile With Space2.txt',
-					'./inputs/annoying'
+					'./inputs/annoying',
+					'./inputs/annoying Spaces Folder/evilFile With Space2.txt:42'
 				]
 			},
 			{
@@ -394,16 +443,21 @@ describe('matcher', () => {
 					'./inputs/annoying',
 					'Space2.txt',
 					'evilFile With Space2.txt',
-					'./inputs/annoying'
+					'./inputs/annoying',
+					'M     ./inputs/annoying Spaces Folder/evilFile With Space2.txt:42'
 				]
 			},
 			{
 				input: { line: 'M     ./objectivec/NSArray+Utils.h' },
-				output: ['./objectivec/NSArray+Utils.h', 'NSArray+Utils.h']
+				output: [
+					'./objectivec/NSArray+Utils.h',
+					'NSArray+Utils.h',
+					'M     ./objectivec/NSArray+Utils.h'
+				]
 			},
 			{
 				input: { line: 'NSArray+Utils.h' },
-				output: ['NSArray+Utils.h']
+				output: ['NSArray+Utils.h', 'NSArray+Utils.h']
 			},
 			{
 				input: {
@@ -416,7 +470,8 @@ describe('matcher', () => {
 					'./inputs/NSArray+Utils.h',
 					'./inputs/NSArray',
 					'NSArray+Utils.h',
-					'NSArray+Utils.h'
+					'NSArray+Utils.h',
+					'./inputs/NSArray+Utils.h:42'
 				]
 			},
 			{
@@ -429,7 +484,8 @@ describe('matcher', () => {
 					'./inputs/blogredesign.sublime-workspace',
 					'./inputs/blogredesign.sublime-workspace',
 					'./inputs/blogredesign',
-					'.sublime-workspace'
+					'.sublime-workspace',
+					'./inputs/blogredesign.sublime-workspace:42'
 				]
 			},
 			{
@@ -442,7 +498,8 @@ describe('matcher', () => {
 					'inputs/blogredesign.sublime-workspace',
 					'inputs/blogredesign.sublime-workspace',
 					'inputs/blogredesign',
-					'.sublime-workspace'
+					'.sublime-workspace',
+					'inputs/blogredesign.sublime-workspace:42'
 				]
 			},
 			{
@@ -453,7 +510,8 @@ describe('matcher', () => {
 				output: [
 					'./inputs/annoying-hyphen-dir/Package Control.system-bundle',
 					'./inputs/annoying-hyphen-dir/Package',
-					'./inputs/annoying-hyphen-dir/Package'
+					'./inputs/annoying-hyphen-dir/Package',
+					'./inputs/annoying-hyphen-dir/Package Control.system-bundle'
 				]
 			},
 			{
@@ -464,7 +522,8 @@ describe('matcher', () => {
 				output: [
 					'inputs/annoying-hyphen-dir/Package Control.system-bundle',
 					'inputs/annoying-hyphen-dir/Package',
-					'inputs/annoying-hyphen-dir/Package'
+					'inputs/annoying-hyphen-dir/Package',
+					'inputs/annoying-hyphen-dir/Package Control.system-bundle'
 				]
 			},
 			{
@@ -475,7 +534,8 @@ describe('matcher', () => {
 				output: [
 					'./inputs/annoying-hyphen-dir/Package Control.system-bundle',
 					'./inputs/annoying-hyphen-dir/Package',
-					'./inputs/annoying-hyphen-dir/Package'
+					'./inputs/annoying-hyphen-dir/Package',
+					'./inputs/annoying-hyphen-dir/Package Control.system-bundle:42'
 				]
 			},
 			{
@@ -486,7 +546,8 @@ describe('matcher', () => {
 				output: [
 					'./inputs/svo (install the zip, not me).xml',
 					'./inputs/svo',
-					'./inputs/svo'
+					'./inputs/svo',
+					'./inputs/svo (install the zip, not me).xml'
 				]
 			},
 			{
@@ -497,7 +558,8 @@ describe('matcher', () => {
 				output: [
 					'./inputs/svo (install the zip not me).xml',
 					'./inputs/svo',
-					'./inputs/svo'
+					'./inputs/svo',
+					'./inputs/svo (install the zip not me).xml'
 				]
 			},
 			{
@@ -510,7 +572,8 @@ describe('matcher', () => {
 					'./inputs/svo',
 					'me.xml',
 					'not me.xml',
-					'./inputs/svo'
+					'./inputs/svo',
+					'./inputs/svo install the zip, not me.xml'
 				]
 			},
 			{
@@ -523,7 +586,8 @@ describe('matcher', () => {
 					'./inputs/svo',
 					'me.xml',
 					'svo install the zip not me.xml',
-					'./inputs/svo'
+					'./inputs/svo',
+					'./inputs/svo install the zip not me.xml'
 				]
 			},
 			{
@@ -535,27 +599,42 @@ describe('matcher', () => {
 					'./inputs/annoyingTildeExtension.txt',
 					'./inputs/annoyingTildeExtension.txt~',
 					'./inputs/annoyingTildeExtension.txt',
-					'./inputs/annoyingTildeExtension'
+					'./inputs/annoyingTildeExtension',
+					'./inputs/annoyingTildeExtension.txt~:42'
 				]
 			},
 			{
 				input: { line: 'inputs/.DS_KINDA_STORE', validateFileExists: true },
-				output: ['inputs/.DS_KINDA_STORE', 'inputs/.DS_KINDA_STORE']
+				output: [
+					'inputs/.DS_KINDA_STORE',
+					'inputs/.DS_KINDA_STORE',
+					'inputs/.DS_KINDA_STORE'
+				]
 			},
 			{
 				input: { line: './inputs/.DS_KINDA_STORE', validateFileExists: true },
-				output: ['./inputs/.DS_KINDA_STORE', '/inputs/.DS_KINDA_STORE']
+				output: [
+					'./inputs/.DS_KINDA_STORE',
+					'/inputs/.DS_KINDA_STORE',
+					'./inputs/.DS_KINDA_STORE'
+				]
 			},
 			{
 				input: { line: 'evilFile No Prepend.txt', validateFileExists: true },
-				output: ['Prepend.txt', 'evilFile No Prepend.txt', '.txt']
+				output: [
+					'Prepend.txt',
+					'evilFile No Prepend.txt',
+					'.txt',
+					'evilFile No Prepend.txt'
+				]
 			},
 			{
 				input: { line: 'file-from-yocto_%.bbappend', validateFileExists: true },
 				output: [
 					'file-from-yocto_%.bbappend',
 					'file-from-yocto_%.bbappend',
-					'.bbappend'
+					'.bbappend',
+					'file-from-yocto_%.bbappend'
 				]
 			},
 			{
@@ -570,7 +649,8 @@ describe('matcher', () => {
 					'./foo/file-from-yocto_3',
 					'file-from-yocto_3.1%.bbappend',
 					'file-from-yocto_3.1%.bbappend',
-					'.bbappend'
+					'.bbappend',
+					'other thing ./foo/file-from-yocto_3.1%.bbappend'
 				]
 			},
 			{
@@ -585,27 +665,33 @@ describe('matcher', () => {
 					'./file-from-yocto_3',
 					'file-from-yocto_3.1%.bbappend',
 					'file-from-yocto_3.1%.bbappend',
-					'.bbappend'
+					'.bbappend',
+					'./file-from-yocto_3.1%.bbappend'
 				]
 			},
 			{
 				input: { line: 'Gemfile' },
-				output: ['Gemfile']
+				output: ['Gemfile', 'Gemfile']
 			},
 			{
 				input: { line: 'Gemfilenope' },
-				output: []
+				output: ['Gemfilenope']
 			},
 			{
 				input: { line: 'M ../__tests__/foo.test.js' },
-				output: ['../__tests__/foo.test.js', 'foo.test.js']
+				output: [
+					'../__tests__/foo.test.js',
+					'foo.test.js',
+					'M ../__tests__/foo.test.js'
+				]
 			},
 			{
 				input: { line: 'M ../__tests__/__snapshots__/foo.test.js.snap' },
 				output: [
 					'../__tests__/__snapshots__/foo.test.js.snap',
 					'foo.test.js.snap',
-					'.snap'
+					'.snap',
+					'M ../__tests__/__snapshots__/foo.test.js.snap'
 				]
 			}
 		].forEach(({ input, output }) => expect(matcher(input)).toEqual(output));
@@ -669,6 +755,18 @@ describe('matcher', () => {
 					'no changes added to commit (use "git add" and/or "git commit -a")',
 					'and/or'
 				]
+			}
+		].forEach(({ input, output }) => expect(matcher(input)).toEqual(output));
+	});
+	it('should return expected output for fallback option', () => {
+		[
+			{
+				input: { line: '    ', allInput: true, fallback: false },
+				output: []
+			},
+			{
+				input: { line: 'Gemfilenope', fallback: false },
+				output: []
 			}
 		].forEach(({ input, output }) => expect(matcher(input)).toEqual(output));
 	});

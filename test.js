@@ -1,16 +1,12 @@
 const cp = require('child_process');
 
-const {
-	unpackMatches,
-	getRootPath,
-	prependDir,
-	matcher
-} = require('.').__internals__;
+const pickAPath = require('.');
+const { getMatch, getRootPath, prependDir, matcher } = pickAPath.__internals__;
 
 jest.mock('child_process', () => {
 	const GIT_ROOT_CMD = 'git rev-parse --show-toplevel';
 	const HG_ROOT_CMD = 'hg root';
-	const expectedRootFolder = '/Users/username/Documents/foo';
+	const stdout = '/Users/username/Documents/foo';
 	let gitFail = false;
 	let hgFail = false;
 
@@ -26,9 +22,9 @@ jest.mock('child_process', () => {
 				.promisify(setImmediate)()
 				.then(() => {
 					if (cmd === GIT_ROOT_CMD && !gitFail) {
-						cb(null, { stdout: expectedRootFolder });
+						cb(null, { stdout });
 					} else if (cmd === HG_ROOT_CMD && !hgFail) {
-						cb(null, { stdout: expectedRootFolder });
+						cb(null, { stdout });
 					} else {
 						cb(new Error('ENOENT'));
 					}
@@ -40,22 +36,22 @@ jest.mock('child_process', () => {
 
 jest.mock('untildify', () => i => i.replace(/^~/, '/Users/username'));
 
-describe('unpackMatches', () => {
+describe('getMatch', () => {
 	it('should return null if non-valid value used', () => {
-		expect(unpackMatches()).toBe(null);
-		expect(unpackMatches(0)).toBe(null);
-		expect(unpackMatches(NaN)).toBe(null);
-		expect(unpackMatches('')).toBe(null);
-		expect(unpackMatches(false)).toBe(null);
-		expect(unpackMatches(null)).toBe(null);
-		expect(unpackMatches(undefined)).toBe(null);
-		expect(unpackMatches([])).toBe(null);
-		expect(unpackMatches({})).toBe(null);
+		expect(getMatch()).toBe(null);
+		expect(getMatch(0)).toBe(null);
+		expect(getMatch(NaN)).toBe(null);
+		expect(getMatch('')).toBe(null);
+		expect(getMatch(false)).toBe(null);
+		expect(getMatch(null)).toBe(null);
+		expect(getMatch(undefined)).toBe(null);
+		expect(getMatch([])).toBe(null);
+		expect(getMatch({})).toBe(null);
 	});
 	it('should return unpacked match if valid value used', () => {
-		expect(unpackMatches(['', 'foo'])).toBe('foo');
-		expect(unpackMatches(/([a-z])/.exec('foo'))).toBe('f');
-		expect(unpackMatches(/([a-z].[a-z])/.exec('--foo-bar'))).toBe('foo');
+		expect(getMatch(['', 'foo'])).toBe('foo');
+		expect(getMatch(/([a-z])/.exec('foo'))).toBe('f');
+		expect(getMatch(/([a-z].[a-z])/.exec('--foo-bar'))).toBe('foo');
 	});
 });
 
@@ -509,51 +505,88 @@ describe('matcher', () => {
 					line: './inputs/svo install the zip, not me.xml',
 					validateFileExists: true
 				},
-				output: ['./inputs/svo install the zip, not me.xml']
+				output: [
+					'./inputs/svo install the zip, not me.xml',
+					'./inputs/svo',
+					'me.xml',
+					'not me.xml',
+					'./inputs/svo'
+				]
 			},
 			{
 				input: {
 					line: './inputs/svo install the zip not me.xml',
 					validateFileExists: true
 				},
-				output: ['./inputs/svo install the zip not me.xml']
+				output: [
+					'./inputs/svo install the zip not me.xml',
+					'./inputs/svo',
+					'me.xml',
+					'svo install the zip not me.xml',
+					'./inputs/svo'
+				]
 			},
 			{
 				input: {
 					line: './inputs/annoyingTildeExtension.txt~:42',
 					validateFileExists: true
 				},
-				output: ['./inputs/annoyingTildeExtension.txt~']
+				output: [
+					'./inputs/annoyingTildeExtension.txt',
+					'./inputs/annoyingTildeExtension.txt~',
+					'./inputs/annoyingTildeExtension.txt',
+					'./inputs/annoyingTildeExtension'
+				]
 			},
 			{
 				input: { line: 'inputs/.DS_KINDA_STORE', validateFileExists: true },
-				output: ['inputs/.DS_KINDA_STORE']
+				output: ['inputs/.DS_KINDA_STORE', 'inputs/.DS_KINDA_STORE']
 			},
 			{
 				input: { line: './inputs/.DS_KINDA_STORE', validateFileExists: true },
-				output: ['./inputs/.DS_KINDA_STORE']
+				output: ['./inputs/.DS_KINDA_STORE', '/inputs/.DS_KINDA_STORE']
 			},
 			{
 				input: { line: 'evilFile No Prepend.txt', validateFileExists: true },
-				output: ['evilFile No Prepend.txt']
+				output: ['Prepend.txt', 'evilFile No Prepend.txt', '.txt']
 			},
 			{
 				input: { line: 'file-from-yocto_%.bbappend', validateFileExists: true },
-				output: ['file-from-yocto_%.bbappend']
+				output: [
+					'file-from-yocto_%.bbappend',
+					'file-from-yocto_%.bbappend',
+					'.bbappend'
+				]
 			},
 			{
 				input: {
-					line: 'otehr thing ./foo/file-from-yocto_3.1%.bbappend',
+					line: 'other thing ./foo/file-from-yocto_3.1%.bbappend',
 					validateFileExists: true
 				},
-				output: ['file-from-yocto_3.1%.bbappend']
+				output: [
+					'./foo/file-from-yocto_3.1',
+					'./foo/file-from-yocto_3.1',
+					'./foo/file-from-yocto_3.1',
+					'./foo/file-from-yocto_3',
+					'file-from-yocto_3.1%.bbappend',
+					'file-from-yocto_3.1%.bbappend',
+					'.bbappend'
+				]
 			},
 			{
 				input: {
 					line: './file-from-yocto_3.1%.bbappend',
 					validateFileExists: true
 				},
-				output: ['./file-from-yocto_3.1%.bbappend']
+				output: [
+					'./file-from-yocto_3.1',
+					'./file-from-yocto_3.1',
+					'./file-from-yocto_3.1',
+					'./file-from-yocto_3',
+					'file-from-yocto_3.1%.bbappend',
+					'file-from-yocto_3.1%.bbappend',
+					'.bbappend'
+				]
 			},
 			{
 				input: { line: 'Gemfile' },
@@ -562,7 +595,144 @@ describe('matcher', () => {
 			{
 				input: { line: 'Gemfilenope' },
 				output: []
+			},
+			{
+				input: { line: 'M ../__tests__/foo.test.js' },
+				output: ['../__tests__/foo.test.js', 'foo.test.js']
+			},
+			{
+				input: { line: 'M ../__tests__/__snapshots__/foo.test.js.snap' },
+				output: [
+					'../__tests__/__snapshots__/foo.test.js.snap',
+					'foo.test.js.snap',
+					'.snap'
+				]
 			}
 		].forEach(({ input, output }) => expect(matcher(input)).toEqual(output));
+	});
+	it('should return expected output for all input cases', () => {
+		[
+			{
+				input: { line: '    ', allInput: true },
+				output: []
+			},
+			{
+				input: { line: ' ', allInput: true },
+				output: []
+			},
+			{
+				input: { line: 'a', allInput: true },
+				output: ['a']
+			},
+			{
+				input: { line: '   a', allInput: true },
+				output: ['a']
+			},
+			{
+				input: { line: 'a    ', allInput: true },
+				output: ['a']
+			},
+			{
+				input: { line: '    foo bar', allInput: true },
+				output: ['foo bar']
+			},
+			{
+				input: { line: 'foo bar    ', allInput: true },
+				output: ['foo bar']
+			},
+			{
+				input: { line: '    foo bar    ', allInput: true },
+				output: ['foo bar']
+			},
+			{
+				input: { line: 'foo bar baz', allInput: true },
+				output: ['foo bar baz']
+			},
+			{
+				input: {
+					line: '	modified:   Classes/Media/YPMediaLibraryViewController.m',
+					allInput: true
+				},
+				output: [
+					'modified:   Classes/Media/YPMediaLibraryViewController.m',
+					'Classes/Media/YPMediaLibraryViewController.m',
+					'YPMediaLibraryViewController.m'
+				]
+			},
+			{
+				input: {
+					line:
+						'no changes added to commit (use "git add" and/or "git commit -a")',
+					allInput: true
+				},
+				output: [
+					'no changes added to commit (use "git add" and/or "git commit -a")',
+					'and/or'
+				]
+			}
+		].forEach(({ input, output }) => expect(matcher(input)).toEqual(output));
+	});
+});
+
+describe('pickAPath', () => {
+	it('should reject if first param is missing', () => {
+		return expect(pickAPath()).rejects.toThrow(TypeError);
+	});
+	it('should reject if first param is null', () => {
+		return expect(pickAPath(null)).rejects.toThrow(TypeError);
+	});
+	it('should reject if first param is NaN', () => {
+		return expect(pickAPath(NaN)).rejects.toThrow(TypeError);
+	});
+	it('should reject if first param is a number', () => {
+		return expect(pickAPath(1)).rejects.toThrow(TypeError);
+	});
+	it('should reject if first param is a regex', () => {
+		return expect(pickAPath(/foo/)).rejects.toThrow(TypeError);
+	});
+	it('should reject if first param is an object', () => {
+		return expect(pickAPath({})).rejects.toThrow(TypeError);
+	});
+	it('should reject if first param is an array', () => {
+		return expect(pickAPath([])).rejects.toThrow(TypeError);
+	});
+	it('should return simple matcher result if validateFileExists is false', () => {
+		return expect(
+			pickAPath(' M whatever ./foo/bar', { validateFileExists: false })
+		).resolves.toBe('./foo/bar');
+	});
+	it('should return undefined if matcher has no matches', () => {
+		return expect(
+			pickAPath('SO.MANY&&PERIODSTXT', { validateFileExists: false })
+		).resolves.toBe(undefined);
+	});
+	it('should return simple matcher with file validation result', () => {
+		return expect(
+			pickAPath(' M whatever ./__fixtures__/simplefile.js')
+		).resolves.toBe('./__fixtures__/simplefile.js');
+	});
+	it('should resolve with undefined if file can not be found', () => {
+		return expect(pickAPath(' M whatever ./foo/bar')).resolves.toBe(undefined);
+	});
+	it('should resolve to trimmed input value if allInput param is used', () => {
+		return expect(
+			pickAPath(' M whatever ./__fixtures__/simplefile.js', { allInput: true })
+		).resolves.toBe('M whatever ./__fixtures__/simplefile.js');
+	});
+	it('should resolve otherwise non-discoverable file names using allInput', () => {
+		return expect(pickAPath('LICENSE', { allInput: true })).resolves.toBe(
+			'LICENSE'
+		);
+	});
+	it('should resolve trimmed input value if using allInput and validateFileExists=false', () => {
+		return expect(
+			pickAPath('   lorem ipsum dolor sit amet ... ', {
+				allInput: true,
+				validateFileExists: false
+			})
+		).resolves.toBe('lorem ipsum dolor sit amet ...');
+	});
+	it('should skip validation and resolve expected value for git triple-dot paths', () => {
+		return expect(pickAPath('M diff .../foo/bar')).resolves.toBe('.../foo/bar');
 	});
 });

@@ -58,8 +58,7 @@ const REGEX_WATERFALL = [
 	}
 ];
 
-const unpackMatches = matches =>
-	matches && matches.length > 1 ? matches[1] : null;
+const getMatch = matches => (matches && matches.length > 1 ? matches[1] : null);
 
 const getRootPath = () =>
 	exec(GIT_ROOT_CMD)
@@ -93,64 +92,63 @@ const prependDir = file => {
 };
 
 const matcher = ({ line, validateFileExists, allInput }) =>
-	REGEX_WATERFALL.reduce((acc, regexConfig) => {
+	REGEX_WATERFALL.reduce((acc, config) => {
 		if (
-			(regexConfig.allInput && !allInput) ||
-			(!regexConfig.allInput && allInput) ||
-			(regexConfig.validateFileExists && !validateFileExists) ||
-			!regexConfig.regex.test(line)
+			(config.allInput && !allInput) ||
+			(config.validateFileExists && !validateFileExists) ||
+			!config.regex.test(line)
 		)
 			return acc;
 
-		const matches = regexConfig.regex.exec(line);
+		const add = match =>
+			config.allInput
+				? [getMatch(match)].concat(acc)
+				: acc.concat(getMatch(match));
+		const matches = config.regex.exec(line);
 
-		if (!regexConfig.preferred || !regexConfig.preferred.test(line))
-			return acc.concat(unpackMatches(matches));
+		if (!config.preferred || !config.preferred.test(line)) return add(matches);
 
-		const preferredMatches = regexConfig.preferred.exec(line);
+		const preferredMatches = config.preferred.exec(line);
 
 		if (preferredMatches.index < matches.index)
-			return acc.concat(unpackMatches(preferredMatches));
+			return acc.concat(getMatch(preferredMatches));
 
-		return acc.concat(unpackMatches(matches));
+		return add(matches);
 	}, []).filter(a => a);
 
-function pickAPath(line, { validateFileExists = false, allInput = false }) {
+function pickAPath(line, { validateFileExists = true, allInput = false } = {}) {
 	if (typeof line !== 'string') {
-		throw new TypeError('ERR_INVALID_ARG_TYPE');
+		return Promise.reject(new TypeError('ERR_INVALID_ARG_TYPE'));
 	}
 
 	if (!validateFileExists) {
-		return Promise.resolve(matcher({ line, allInput })[0] || null);
+		return Promise.resolve(matcher({ line, allInput })[0]);
 	}
 
 	return new Promise((resolve, reject) => {
 		const results = matcher({ line, validateFileExists, allInput });
-		const testNextItem = i => {
-			const item = results[i];
+		const testNextFile = i => {
+			const file = results[i];
+			if (!file) return resolve();
 
-			if (!item) reject(new Error('No path found'));
-
-			prependDir(item.filename)
+			prependDir(file)
 				.then(access)
 				.then(() => {
-					resolve(item);
+					resolve(allInput ? results[0] : file);
 				})
-				.catch(
-					() => (item.filename.substr(0, 4) === '.../' ? resolve(item) : true)
-				)
-				.then(hasNoResult => hasNoResult && testNextItem(i + 1));
+				.catch(() => (file.substr(0, 4) === '.../' ? resolve(file) : true))
+				.then(hasNoResult => hasNoResult && testNextFile(i + 1))
+				.catch(reject);
 		};
-		testNextItem(0);
+		testNextFile(0);
 	});
 }
 
-module.exports = {
-	__internals__: {
-		unpackMatches,
-		getRootPath,
-		prependDir,
-		matcher
-	},
-	pickAPath
+pickAPath.__internals__ = {
+	getMatch,
+	getRootPath,
+	prependDir,
+	matcher
 };
+
+module.exports = pickAPath;

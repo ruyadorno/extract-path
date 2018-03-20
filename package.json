@@ -1,7 +1,7 @@
 {
-  "name": "pick-a-path",
+  "name": "extract-path",
   "version": "1.0.0",
-  "description": "Parse strings and retrieves valid fs paths",
+  "description": "Extract a valid fs path from a string",
   "main": "index.js",
   "files": [
     "index.js"
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ruyadorno/pick-a-path.git"
+    "url": "git+https://github.com/ruyadorno/extract-path.git"
   },
   "keywords": [
     "path",
@@ -23,7 +23,8 @@
     "extract",
     "retrieve",
     "filename",
-    "file"
+    "file",
+    "fs"
   ],
   "author": {
     "name": "Ruy Adorno",
@@ -31,9 +32,9 @@
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ruyadorno/pick-a-path/issues"
+    "url": "https://github.com/ruyadorno/extract-path/issues"
   },
-  "homepage": "https://github.com/ruyadorno/pick-a-path#readme",
+  "homepage": "https://github.com/ruyadorno/extract-path#readme",
   "dependencies": {
     "untildify": "^3.0.2"
   },

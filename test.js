@@ -1,7 +1,12 @@
 const cp = require('child_process');
 
-const pickAPath = require('.');
-const { getMatch, getRootPath, prependDir, matcher } = pickAPath.__internals__;
+const extractPath = require('.');
+const {
+	getMatch,
+	getRootPath,
+	prependDir,
+	matcher
+} = extractPath.__internals__;
 
 jest.mock('child_process', () => {
 	const GIT_ROOT_CMD = 'git rev-parse --show-toplevel';
@@ -772,41 +777,41 @@ describe('matcher', () => {
 	});
 });
 
-describe('pickAPath', () => {
+describe('extractPath', () => {
 	it('should reject if first param is missing', () => {
-		return expect(pickAPath()).rejects.toThrow(TypeError);
+		return expect(extractPath()).rejects.toThrow(TypeError);
 	});
 	it('should reject if first param is null', () => {
-		return expect(pickAPath(null)).rejects.toThrow(TypeError);
+		return expect(extractPath(null)).rejects.toThrow(TypeError);
 	});
 	it('should reject if first param is NaN', () => {
-		return expect(pickAPath(NaN)).rejects.toThrow(TypeError);
+		return expect(extractPath(NaN)).rejects.toThrow(TypeError);
 	});
 	it('should reject if first param is a number', () => {
-		return expect(pickAPath(1)).rejects.toThrow(TypeError);
+		return expect(extractPath(1)).rejects.toThrow(TypeError);
 	});
 	it('should reject if first param is a regex', () => {
-		return expect(pickAPath(/foo/)).rejects.toThrow(TypeError);
+		return expect(extractPath(/foo/)).rejects.toThrow(TypeError);
 	});
 	it('should reject if first param is an object', () => {
-		return expect(pickAPath({})).rejects.toThrow(TypeError);
+		return expect(extractPath({})).rejects.toThrow(TypeError);
 	});
 	it('should reject if first param is an array', () => {
-		return expect(pickAPath([])).rejects.toThrow(TypeError);
+		return expect(extractPath([])).rejects.toThrow(TypeError);
 	});
 	it('should return simple matcher result if validateFileExists is false', () => {
 		return expect(
-			pickAPath(' M whatever ./foo/bar', { validateFileExists: false })
+			extractPath(' M whatever ./foo/bar', { validateFileExists: false })
 		).resolves.toBe('./foo/bar');
 	});
 	it('should return fallback value if matcher has no matches', () => {
 		return expect(
-			pickAPath('SO.MANY&&PERIODSTXT', { validateFileExists: false })
+			extractPath('SO.MANY&&PERIODSTXT', { validateFileExists: false })
 		).resolves.toBe('SO.MANY&&PERIODSTXT');
 	});
 	it('should return undefined if matcher has no matches and resolveWithFallback=false', () => {
 		return expect(
-			pickAPath('SO.MANY&&PERIODSTXT', {
+			extractPath('SO.MANY&&PERIODSTXT', {
 				validateFileExists: false,
 				resolveWithFallback: false
 			})
@@ -814,31 +819,35 @@ describe('pickAPath', () => {
 	});
 	it('should return simple matcher with file validation result', () => {
 		return expect(
-			pickAPath(' M whatever ./__fixtures__/simplefile.js')
+			extractPath(' M whatever ./__fixtures__/simplefile.js')
 		).resolves.toBe('./__fixtures__/simplefile.js');
 	});
 	it('should resolve with undefined if file can not be found', () => {
-		return expect(pickAPath(' M whatever ./foo/bar')).resolves.toBe(undefined);
+		return expect(extractPath(' M whatever ./foo/bar')).resolves.toBe(
+			undefined
+		);
 	});
 	it('should resolve to trimmed input value if resolveWithInput param is used', () => {
 		return expect(
-			pickAPath(' M whatever ./__fixtures__/simplefile.js', {
+			extractPath(' M whatever ./__fixtures__/simplefile.js', {
 				resolveWithInput: true
 			})
 		).resolves.toBe('M whatever ./__fixtures__/simplefile.js');
 	});
 	it('should resolve fallback file names', () => {
-		return expect(pickAPath('LICENSE')).resolves.toBe('LICENSE');
+		return expect(extractPath('LICENSE')).resolves.toBe('LICENSE');
 	});
 	it('should resolve trimmed input value if using resolveWithInput and validateFileExists=false', () => {
 		return expect(
-			pickAPath('   lorem ipsum dolor sit amet ... ', {
+			extractPath('   lorem ipsum dolor sit amet ... ', {
 				resolveWithInput: true,
 				validateFileExists: false
 			})
 		).resolves.toBe('lorem ipsum dolor sit amet ...');
 	});
 	it('should skip validation and resolve expected value for git triple-dot paths', () => {
-		return expect(pickAPath('M diff .../foo/bar')).resolves.toBe('.../foo/bar');
+		return expect(extractPath('M diff .../foo/bar')).resolves.toBe(
+			'.../foo/bar'
+		);
 	});
 });

@@ -116,7 +116,7 @@ const matcher = ({ line, validateFileExists, allInput, fallback = true }) =>
 		return add(matches);
 	}, []).filter(a => a);
 
-function pickAPath(
+function extractPath(
 	line,
 	{
 		validateFileExists = true,
@@ -162,11 +162,11 @@ function pickAPath(
 	});
 }
 
-pickAPath.__internals__ = {
+extractPath.__internals__ = {
 	getMatch,
 	getRootPath,
 	prependDir,
 	matcher
 };
 
-module.exports = pickAPath;
+module.exports = extractPath;

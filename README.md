@@ -26,7 +26,7 @@ The main use case for the lib is to be able to take valid path values out of ver
 - `    modified:   src/Router.js` resolves to `src/Router.js`
 - `?? src/utils/__tests__/file.test.js` resolves to `src/utils/__tests__/file.test.js`
 
-This library was primarily put together for usage in [iPipeTo](https://github.com/ruyadorno/ipt) which allows for its users to easily extract a path out of a random input value. Keep in mind that I made the extra effort of making **extract-path** a separated lib in the hope that it can be useful for other usecases out there. Feel free to refer to [iPipeTo source code](https://github.com/ruyadorno/ipt/blob/master/src/index.js) as a implementation example if ever needed.
+This library was primarily put together for usage in [iPipeTo](https://github.com/ruyadorno/ipt) which allows for its users to easily extract a path out of a random input value. Some extra effort was made to ensure **extract-path** works well as a separated lib in the hope that it can be useful for different use cases out there. Feel free to refer to [iPipeTo source code](https://github.com/ruyadorno/ipt/blob/master/src/index.js) as a implementation example if ever needed.
 
 ## Install
 

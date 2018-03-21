@@ -56,7 +56,6 @@ The API only exposes a single function, that receives a `string` and returns a `
 - **str** `string` value to be parsed in order to extract a valid fs path
 - **opts** \[optional\] `object` containing the following:
   - **validateFileExists** `boolean` wether the module should validate the file exists, defaults to `true`
-  - **resolveWithInput** `boolean` if `true` resolves the promise with the entire input instead of only the path, defaults to `false`
   - **resolveWithFallback** `boolean` uses a fallback system that matches the entire input if a path couldn't be infered from the input, defaults to `true`
 
 ## Credit

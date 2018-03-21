@@ -701,77 +701,65 @@ describe('matcher', () => {
 			}
 		].forEach(({ input, output }) => expect(matcher(input)).toEqual(output));
 	});
-	it('should return expected output for all input cases', () => {
+	it('should return expected output for fallback cases', () => {
 		[
 			{
-				input: { line: '    ', allInput: true },
+				input: { line: '    ', fallback: true },
 				output: []
 			},
 			{
-				input: { line: ' ', allInput: true },
+				input: { line: ' ', fallback: true },
 				output: []
 			},
 			{
-				input: { line: 'a', allInput: true },
+				input: { line: 'a', fallback: true },
 				output: ['a']
 			},
 			{
-				input: { line: '   a', allInput: true },
+				input: { line: '   a', fallback: true },
 				output: ['a']
 			},
 			{
-				input: { line: 'a    ', allInput: true },
+				input: { line: 'a    ', fallback: true },
 				output: ['a']
 			},
 			{
-				input: { line: '    foo bar', allInput: true },
+				input: { line: '    foo bar', fallback: true },
 				output: ['foo bar']
 			},
 			{
-				input: { line: 'foo bar    ', allInput: true },
+				input: { line: 'foo bar    ', fallback: true },
 				output: ['foo bar']
 			},
 			{
-				input: { line: '    foo bar    ', allInput: true },
+				input: { line: '    foo bar    ', fallback: true },
 				output: ['foo bar']
 			},
 			{
-				input: { line: 'foo bar baz', allInput: true },
+				input: { line: 'foo bar baz', fallback: true },
 				output: ['foo bar baz']
 			},
 			{
 				input: {
 					line: '	modified:   Classes/Media/YPMediaLibraryViewController.m',
-					allInput: true
+					fallback: true
 				},
 				output: [
-					'modified:   Classes/Media/YPMediaLibraryViewController.m',
 					'Classes/Media/YPMediaLibraryViewController.m',
-					'YPMediaLibraryViewController.m'
+					'YPMediaLibraryViewController.m',
+					'modified:   Classes/Media/YPMediaLibraryViewController.m'
 				]
 			},
 			{
 				input: {
 					line:
 						'no changes added to commit (use "git add" and/or "git commit -a")',
-					allInput: true
+					fallback: true
 				},
 				output: [
-					'no changes added to commit (use "git add" and/or "git commit -a")',
-					'and/or'
+					'and/or',
+					'no changes added to commit (use "git add" and/or "git commit -a")'
 				]
-			}
-		].forEach(({ input, output }) => expect(matcher(input)).toEqual(output));
-	});
-	it('should return expected output for fallback option', () => {
-		[
-			{
-				input: { line: '    ', allInput: true, fallback: false },
-				output: []
-			},
-			{
-				input: { line: 'Gemfilenope', fallback: false },
-				output: []
 			}
 		].forEach(({ input, output }) => expect(matcher(input)).toEqual(output));
 	});
@@ -809,7 +797,7 @@ describe('extractPath', () => {
 			extractPath('SO.MANY&&PERIODSTXT', { validateFileExists: false })
 		).resolves.toBe('SO.MANY&&PERIODSTXT');
 	});
-	it('should return undefined if matcher has no matches and resolveWithFallback=false', () => {
+	it('should return undefined if matcher has no matches and resolveWithFallback is false', () => {
 		return expect(
 			extractPath('SO.MANY&&PERIODSTXT', {
 				validateFileExists: false,
@@ -827,23 +815,11 @@ describe('extractPath', () => {
 			undefined
 		);
 	});
-	it('should resolve to trimmed input value if resolveWithInput param is used', () => {
-		return expect(
-			extractPath(' M whatever ./__fixtures__/simplefile.js', {
-				resolveWithInput: true
-			})
-		).resolves.toBe('M whatever ./__fixtures__/simplefile.js');
-	});
 	it('should resolve fallback file names', () => {
 		return expect(extractPath('LICENSE')).resolves.toBe('LICENSE');
 	});
-	it('should resolve trimmed input value if using resolveWithInput and validateFileExists=false', () => {
-		return expect(
-			extractPath('   lorem ipsum dolor sit amet ... ', {
-				resolveWithInput: true,
-				validateFileExists: false
-			})
-		).resolves.toBe('lorem ipsum dolor sit amet ...');
+	it('should resolve fallback file names to undefined if resolveWithFallback is false', () => {
+		return expect(extractPath('LICENSE', { resolveWithFallback: false })).resolves.toBe(undefined);
 	});
 	it('should skip validation and resolve expected value for git triple-dot paths', () => {
 		return expect(extractPath('M diff .../foo/bar')).resolves.toBe(

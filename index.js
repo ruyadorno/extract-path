@@ -54,7 +54,7 @@ const REGEX_WATERFALL = [
 	},
 	{
 		regex: ENTIRE_TRIMMED_LINE_IF_NOT_WHITESPACE,
-		allInput: 1
+		fallback: 1
 	}
 ];
 
@@ -91,19 +91,16 @@ const prependDir = file => {
 	});
 };
 
-const matcher = ({ line, validateFileExists, allInput, fallback = true }) =>
+const matcher = ({ line, validateFileExists, fallback = true }) =>
 	REGEX_WATERFALL.reduce((acc, config) => {
 		if (
-			(config.allInput && !fallback) ||
+			(config.fallback && !fallback) ||
 			(config.validateFileExists && !validateFileExists) ||
 			!config.regex.test(line)
 		)
 			return acc;
 
-		const add = match =>
-			config.allInput && allInput
-				? [getMatch(match)].concat(acc)
-				: acc.concat(getMatch(match));
+		const add = match => acc.concat(getMatch(match));
 		const matches = config.regex.exec(line);
 
 		if (!config.preferred || !config.preferred.test(line)) return add(matches);
@@ -120,7 +117,6 @@ function extractPath(
 	line,
 	{
 		validateFileExists = true,
-		resolveWithInput = false,
 		resolveWithFallback = true
 	} = {}
 ) {
@@ -132,7 +128,6 @@ function extractPath(
 		return Promise.resolve(
 			matcher({
 				line,
-				allInput: resolveWithInput,
 				fallback: resolveWithFallback
 			})[0]
 		);
@@ -142,7 +137,6 @@ function extractPath(
 		const results = matcher({
 			line,
 			validateFileExists,
-			allInput: resolveWithInput,
 			fallback: resolveWithFallback
 		});
 		const testNextFile = i => {
@@ -152,7 +146,7 @@ function extractPath(
 			prependDir(file)
 				.then(access)
 				.then(() => {
-					resolve(resolveWithInput ? results[0] : file);
+					resolve(file);
 				})
 				.catch(() => (file.substr(0, 4) === '.../' ? resolve(file) : true))
 				.then(hasNoResult => hasNoResult && testNextFile(i + 1))

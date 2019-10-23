@@ -1,6 +1,6 @@
 {
   "name": "extract-path",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Extract a valid fs path from a string",
   "main": "index.js",
   "files": [

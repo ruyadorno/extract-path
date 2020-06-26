@@ -72,5 +72,5 @@ Please do! This is an open source project. If you have a bug or want to discuss 
 
 ## License
 
-[MIT](LICENSE) © 2018 [Ruy Adorno](http://ruyadorno.com)
+[MIT](LICENSE) © 2020 [Ruy Adorno](http://ruyadorno.com)
 

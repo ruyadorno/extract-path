@@ -115,10 +115,7 @@ const matcher = ({ line, validateFileExists, fallback = true }) =>
 
 function extractPath(
 	line,
-	{
-		validateFileExists = true,
-		resolveWithFallback = true
-	} = {}
+	{ validateFileExists = true, resolveWithFallback = true } = {}
 ) {
 	if (typeof line !== 'string') {
 		return Promise.reject(new TypeError('ERR_INVALID_ARG_TYPE'));
